@@ -8,7 +8,7 @@ public class Proj1Main {
 //	static LogHandler Log = new LogHandler("ProjMain");
 
 	/**
-	 * @param args
+	 * @param args  
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
