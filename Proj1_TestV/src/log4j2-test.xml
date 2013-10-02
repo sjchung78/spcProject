@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" strict="true" name="XMLConfigTest"
+               packages="org.apache.logging.log4j.test">
+	<Properties>
+    	<Property name="filename">log/spc.log</Property>
+  	</Properties>
+  	<Appenders>
+    	<Console name="Console" target="SYSTEM_OUT">
+      		<PatternLayout pattern="%d{HH:mm:ss.SSS} %msg%n"/>
+    	</Console>
+    	<Appender type="File" name="File" fileName="${filename}">
+      		<Layout type="PatternLayout">
+        		<Pattern>%d %m%n</Pattern>
+      		</Layout>
+  		</Appender>
+  	</Appenders>
+  	
+  	<Loggers>
+    	<Root level="info">
+      		<AppenderRef ref="Console"/>
+      		<AppenderRef ref="File"/>
+    	</Root>
+  	</Loggers>
+</Configuration>
