@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="C:/z. Work/workspace/git/spcProject/Proj1_TestV/lib/log4j-api-2.0-beta9.jar"/>
 	<classpathentry kind="lib" path="C:/z. Work/workspace/git/spcProject/Proj1_TestV/lib/log4j-core-2.0-beta9.jar"/>
 	<classpathentry kind="lib" path="C:/z. Work/workspace/git/spcProject/Proj1_TestV/lib/weibo_api.jar"/>
+	<classpathentry kind="lib" path="C:/z. Work/workspace/git/spcProject/Proj1_TestV/lib/mysql-connector-java-5.1.26-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

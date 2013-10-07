@@ -17,27 +17,31 @@ public class DbHandler {
 		this.logger = new LogHandler("DbHandler");
 	}
 
-	public void connect() {
-		
+	public Connection connect() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			String connection_string = "jdbc:mysql://"+
-						WeiboConfig.getValue("DB_IP") +":" +
-						WeiboConfig.getValue("DB_PORT") +"/weibo?user=" +
-						WeiboConfig.getValue("DB_ID") + "&password=" +
-						WeiboConfig.getValue("DB_PW");
-		    
-			conn = DriverManager.getConnection(connection_string);	
+			if (conn == null || conn.isClosed()) {
+				Class.forName("com.mysql.jdbc.Driver").newInstance();
+				String connection_string = "jdbc:mysql://"+
+							WeiboConfig.getValue("DB_IP") +":" +
+							WeiboConfig.getValue("DB_PORT") +"/weibo?user=" +
+							WeiboConfig.getValue("DB_ID") + "&password=" +
+							WeiboConfig.getValue("DB_PW");
+			    
+				conn = DriverManager.getConnection(connection_string);
+			}
 		} catch (SQLException ex) {
 		    // handle any errors
 		    System.out.println("SQLException: " + ex.getMessage());
 		    System.out.println("SQLState: " + ex.getSQLState());
 		    System.out.println("VendorError: " + ex.getErrorCode());
+		    conn = null;
 		}
 		catch (Exception e) {
 		    // handle any errors
 		    e.printStackTrace();
+		    conn = null;
 		}
+		return conn;
 	}
 	
 	public void select() {

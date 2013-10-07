@@ -1,4 +1,4 @@
-package spc_proj.dao;
+package spc_proj.wrapper;
 
 import java.sql.Blob;
 
