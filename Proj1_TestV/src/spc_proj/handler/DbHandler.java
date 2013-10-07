@@ -23,11 +23,9 @@ public class DbHandler {
 				Class.forName("com.mysql.jdbc.Driver").newInstance();
 				String connection_string = "jdbc:mysql://"+
 							WeiboConfig.getValue("DB_IP") +":" +
-							WeiboConfig.getValue("DB_PORT") +"/weibo?user=" +
-							WeiboConfig.getValue("DB_ID") + "&password=" +
-							WeiboConfig.getValue("DB_PW");
+							WeiboConfig.getValue("DB_PORT") +"/weibo?useUnicode=true&characterEncoding=utf-8";
 			    
-				conn = DriverManager.getConnection(connection_string);
+				conn = DriverManager.getConnection(connection_string, WeiboConfig.getValue("DB_ID"), WeiboConfig.getValue("DB_PW"));
 			}
 		} catch (SQLException ex) {
 		    // handle any errors

@@ -41,8 +41,8 @@ public class Weibo_user {
 	private String weihao = null;
 	private String status_id = null;
 	private String insert_date = null;
-	private String crawl_level = null;
-	private String crawled = null;
+	private int crawl_level = -1;
+	private int crawled = -1;
 	private String uid = null;
 	private String blog_url = null;
 	private String id_score = null;
@@ -61,8 +61,8 @@ public class Weibo_user {
 			boolean allow_all_comment, boolean follow_me, String avatar_large,
 			int online_status, Status status, int bi_followers_count,
 			String remark, String lang, String verified_reason, String weihao,
-			String status_id, String insert_date, String crawl_level,
-			String crawled, String uid, String blog_url, String id_score, String request_id1,
+			String status_id, String insert_date, int crawl_level,
+			int crawled, String uid, String blog_url, String id_score, String request_id1,
 			String request_id2, String url_score1, String url_score2) {
 		super();
 		this.id = id;
@@ -106,6 +106,7 @@ public class Weibo_user {
 		this.request_id2 = request_id2;
 		this.url_score1 = url_score1;
 		this.url_score2 = url_score2;
+		convert();
 	}
 
 	public Weibo_user(Status s) {
@@ -144,6 +145,7 @@ public class Weibo_user {
 		
 		this.blog_url = s.getUser().getUrl();
 		this.insert_date = StringUtil.getCurrent(1);
+		convert();
 	}
 	
 	public Weibo_user(User u) {
@@ -182,10 +184,38 @@ public class Weibo_user {
 		
 		this.blog_url = u.getUrl();
 		this.insert_date = StringUtil.getCurrent(1);
+		convert();
 	}
 
+	private void convert(){
+		try {
+//			setId(new String(getId().getBytes(), "UTF-8"));
+//			setScreen_name (new String(getScreen_name().getBytes("GB2312"), "UTF8"));
+//			setName(new String(getName().getBytes(), "UTF8"));
+//			setLocation(new String(getLocation().getBytes(), "UTF8"));
+//			setDescription (new String(getDescription().getBytes(), "UTF8"));
+//			setUrl (new String(getUrl().getBytes(), "UTF-8"));
+//			setUser_domain (new String(getUser_domain().getBytes(), "UTF-8"));
+//			setGender(new String(getGender().getBytes(), "UTF-8"));
+//			setAvatar_large(new String(getAvatar_large().getBytes(), "UTF-8"));
+//			setRemark(new String(getRemark().getBytes(), "UTF-8"));
+//			setLang(new String(getLang().getBytes(), "UTF-8"));
+//			setVerified_reason (new String(getVerified_reason().getBytes(), "UTF-8"));
+//			setWeihao(new String(getWeihao().getBytes(), "UTF-8"));
+//			setStatus_id (new String(getStatus_id().getBytes(), "UTF-8"));
+//			setUid (new String(getUid().getBytes(), "UTF-8"));
+//			setBlog_url(new String(getBlog_url().getBytes(), "UTF-8"));
+//
+//			String enc = new java.io.OutputStreamWriter(System.out).getEncoding();
+//            System.out.println("default encoding = " + enc);
+            
+		} catch (Exception e) {
+			
+		}
+	}
+	
 	public String getId() {
-		return id;
+		return id==null?"":id;
 	}
 
 	public void setId(String id) {
@@ -193,7 +223,7 @@ public class Weibo_user {
 	}
 
 	public String getScreen_name() {
-		return screen_name;
+		return screen_name==null?"":screen_name;
 	}
 
 	public void setScreen_name(String screen_name) {
@@ -201,7 +231,7 @@ public class Weibo_user {
 	}
 
 	public String getName() {
-		return name;
+		return name==null?"":name;
 	}
 
 	public void setName(String name) {
@@ -225,7 +255,7 @@ public class Weibo_user {
 	}
 
 	public String getLocation() {
-		return location;
+		return location==null?"":location;
 	}
 
 	public void setLocation(String location) {
@@ -233,7 +263,7 @@ public class Weibo_user {
 	}
 
 	public String getDescription() {
-		return description;
+		return description==null?"":description;
 	}
 
 	public void setDescription(String description) {
@@ -241,7 +271,7 @@ public class Weibo_user {
 	}
 
 	public String getUrl() {
-		return url;
+		return url==null?"":url;
 	}
 
 	public void setUrl(String url) {
@@ -249,7 +279,7 @@ public class Weibo_user {
 	}
 
 	public URL getProfile_image_url() {
-		return profile_image_url;
+		return (URL) (profile_image_url==null?"":profile_image_url);
 	}
 
 	public void setProfile_image_url(URL profile_image_url) {
@@ -257,7 +287,7 @@ public class Weibo_user {
 	}
 
 	public String getUser_domain() {
-		return user_domain;
+		return user_domain==null?"":user_domain;
 	}
 
 	public void setUser_domain(String user_domain) {
@@ -265,7 +295,7 @@ public class Weibo_user {
 	}
 
 	public String getGender() {
-		return gender;
+		return gender==null?"":gender;
 	}
 
 	public void setGender(String gender) {
@@ -305,7 +335,7 @@ public class Weibo_user {
 	}
 
 	public Date getCreated_at() {
-		return created_at;
+		return (Date) (created_at==null?"":created_at);
 	}
 
 	public void setCreated_at(Date created_at) {
@@ -361,7 +391,7 @@ public class Weibo_user {
 	}
 
 	public String getAvatar_large() {
-		return avatar_large;
+		return avatar_large==null?"":avatar_large;
 	}
 
 	public void setAvatar_large(String avatar_large) {
@@ -393,7 +423,7 @@ public class Weibo_user {
 	}
 
 	public String getRemark() {
-		return remark;
+		return remark==null?"":remark;
 	}
 
 	public void setRemark(String remark) {
@@ -401,7 +431,7 @@ public class Weibo_user {
 	}
 
 	public String getLang() {
-		return lang;
+		return lang==null?"":lang;
 	}
 
 	public void setLang(String lang) {
@@ -409,7 +439,7 @@ public class Weibo_user {
 	}
 
 	public String getVerified_reason() {
-		return verified_reason;
+		return verified_reason==null?"":verified_reason;
 	}
 
 	public void setVerified_reason(String verified_reason) {
@@ -417,7 +447,7 @@ public class Weibo_user {
 	}
 
 	public String getWeihao() {
-		return weihao;
+		return weihao==null?"":weihao;
 	}
 
 	public void setWeihao(String weihao) {
@@ -425,7 +455,7 @@ public class Weibo_user {
 	}
 
 	public String getStatus_id() {
-		return status_id;
+		return status_id==null?"":status_id;
 	}
 
 	public void setStatus_id(String status_id) {
@@ -433,31 +463,31 @@ public class Weibo_user {
 	}
 
 	public String getInsert_date() {
-		return insert_date;
+		return insert_date==null?"":insert_date;
 	}
 
 	public void setInsert_date(String insert_date) {
 		this.insert_date = insert_date;
 	}
 
-	public String getCrawl_level() {
+	public int getCrawl_level() {
 		return crawl_level;
 	}
 
-	public void setCrawl_level(String crawl_level) {
+	public void setCrawl_level(int crawl_level) {
 		this.crawl_level = crawl_level;
 	}
 
-	public String getCrawled() {
-		return crawled;
+	public int getCrawled() {
+		return crawled==-1?0:crawled;
 	}
 
-	public void setCrawled(String crawled) {
+	public void setCrawled(int crawled) {
 		this.crawled = crawled;
 	}
 
 	public String getUid() {
-		return uid;
+		return uid==null?"":uid;
 	}
 
 	public void setUid(String uid) {
@@ -465,7 +495,7 @@ public class Weibo_user {
 	}
 
 	public String getBlog_url() {
-		return blog_url;
+		return blog_url==null?"":blog_url;
 	}
 
 	public void setBlog_url(String blog_url) {

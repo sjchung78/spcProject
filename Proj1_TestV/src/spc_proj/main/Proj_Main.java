@@ -14,22 +14,20 @@ public class Proj_Main {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		LogHandler logger = new LogHandler("Proj_Main");
-		DbHandler dh = new DbHandler();
-		Connection conn = dh.connect();
 		
 		String accessToken = WeiboConfig.getValue("access_token1");
 		LogHandler logger1 = new LogHandler("Thread1");
-		Proj_thread pth1 = new Proj_thread(conn, accessToken, logger1, 1);
+		Proj_thread pth1 = new Proj_thread(accessToken, logger1, 1);
 		pth1.start();
 		
 		accessToken = WeiboConfig.getValue("access_token2");
 		LogHandler logger2 = new LogHandler("Thread2");
-		Proj_thread pth2 = new Proj_thread(conn, accessToken, logger2, 2);
+		Proj_thread pth2 = new Proj_thread(accessToken, logger2, 2);
 		pth2.start();
-		//////////////////////
+
 		accessToken = WeiboConfig.getValue("access_token3");
 		LogHandler logger3 = new LogHandler("Thread3");
-		Proj_thread pth3 = new Proj_thread(conn, accessToken, logger3, 3);
+		Proj_thread pth3 = new Proj_thread(accessToken, logger3, 3);
 		pth3.start();
 		
 		int i = 0;

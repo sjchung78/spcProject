@@ -3,6 +3,7 @@ package spc_proj.main;
 import java.sql.Connection;
 
 import spc_proj.dao.UserDAO;
+import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
 import spc_proj.wrapper.Weibo_user;
 import weibo4j.Friendships;
@@ -22,15 +23,18 @@ public class Proj_thread extends Thread {
 	private Status[] statusArray = null;
 	private User[][] friendArray = null;
 	private User[][] followerArray = null;
-	UserDAO wrap = new UserDAO(conn);
+	UserDAO wrap = null;
 	int workType = 0;
+	int totalNumber = 0;
 	
-	public Proj_thread(Connection conn, String aToken, LogHandler log, int workType) {
+	public Proj_thread(String aToken, LogHandler log, int workType) {
 		super();
-		this.conn = conn;
+		DbHandler dh = new DbHandler();
+		this.conn = dh.connect();
 		this.accessToken = aToken;
 		this.logger = log;
 		this.workType = workType;
+		wrap = new UserDAO(logger, conn);
 	}
 
 	@Override
@@ -41,6 +45,7 @@ public class Proj_thread extends Thread {
 		logger.info("Thread start!! accessToken["+accessToken+"]");
 		
 		if (workType==1 || workType == 2){
+			int endPoint = 0;
 			while (!killSw) {
 				getPublic();
 				
@@ -50,14 +55,18 @@ public class Proj_thread extends Thread {
 				for (int i = 0; i<statusArray.length;i++){
 					getFollowers(statusArray[i].getUser().getScreenName());
 				}
+				if (endPoint > 500)
+					killSw = true;
 			}
 		} else if (workType ==3){
-			friendArray = new User[10][];
+			friendArray = new User[100][];
 			getFriends2("李开复", 0);
 			
-			followerArray = new User[10][];
+			followerArray = new User[100][];
 			getFollowers2("李开复", 0);
 		}
+		
+		logger.warn("Thread Terminated. killSw["+killSw+"] totalNumber["+totalNumber+"]");
 	}
 	
 	private void getFollowers2(String name, int depth) {
@@ -69,28 +78,30 @@ public class Proj_thread extends Thread {
 		int i = 0;
 		
 		try {
-			UserWapper users = fm.getFollowersByName(screen_name);
+			UserWapper users = fm.getFollowersByName(screen_name, 200, 0);
 			int count = (int)users.getTotalNumber();
 			followerArray[depth] = new User[count];
 			for(User u : users.getUsers()){
 				logger.info(u.toString());
 				
 				wu = new Weibo_user(u);
+				wu.setCrawl_level(depth);
+				wu.setCrawled(workType);
 				wrap.insert(wu);
 				
 				followerArray[depth][i] = u;
 				i++;
+				totalNumber++;
 			}
 			
 			depth++;
 			
-			if (depth > 9) {
-				followerArray[depth-1] = null;
+			if (depth > 99) {
 				return;
 			}
 			
-			for (i = 0; i< followerArray.length; i++) {
-				getFollowers2(followerArray[depth][i].getScreenName(), depth);
+			for (i = 0; i< followerArray[depth-1].length; i++) {
+				getFollowers2(followerArray[depth-1][i].getScreenName(), depth);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -105,12 +116,16 @@ public class Proj_thread extends Thread {
 		Weibo_user wu = null;
 		
 		try {
-			UserWapper users = fm.getFollowersByName(screen_name);
+			UserWapper users = fm.getFollowersByName(screen_name, 200, 0);
 			for(User u : users.getUsers()){
 				logger.info(u.toString());
 				
 				wu = new Weibo_user(u);
+				wu.setCrawl_level(0);
+				wu.setCrawled(workType);
 				wrap.insert(wu);
+				
+				totalNumber++;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -127,27 +142,30 @@ public class Proj_thread extends Thread {
 		
 		try {
 			UserWapper users = fm.getFriendsByScreenName(screen_name);
-			int count = (int)users.getTotalNumber();
+			int count = users.getUsers().size();
 			friendArray[depth] = new User[count];
 			for(User u : users.getUsers()){
 				logger.info(u.toString());
 				
 				wu = new Weibo_user(u);
+				wu.setCrawl_level(depth);
+				wu.setCrawled(workType);
 				wrap.insert(wu);
 				
 				friendArray[depth][i] = u;
 				i++;
+				totalNumber++;
 			}
 			
 			depth++;
 			
-			if (depth > 9) {
+			if (depth > 99) {
 				friendArray[depth-1] = null;
 				return;
 			}
 			
-			for (i = 0; i< friendArray.length; i++) {
-				getFriends2(friendArray[depth][i].getScreenName(), depth);
+			for (i = 0; i< friendArray[depth-1].length; i++) {
+				getFriends2(friendArray[depth-1][i].getScreenName(), depth);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -166,7 +184,11 @@ public class Proj_thread extends Thread {
 				logger.info(u.toString());
 				
 				wu = new Weibo_user(u);
+				wu.setCrawl_level(0);
+				wu.setCrawled(workType);
 				wrap.insert(wu);
+				
+				totalNumber++;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -187,10 +209,14 @@ public class Proj_thread extends Thread {
 			
 			for(Status s : sw.getStatuses()){
 				wu = new Weibo_user(s);
+				wu.setCrawl_level(0);
+				wu.setCrawled(workType);
 				wrap.insert(wu);
 				
 				statusArray[i] = s;
 				i++;
+				
+				totalNumber++;
 			}
 			
 		} catch (Exception e) {
