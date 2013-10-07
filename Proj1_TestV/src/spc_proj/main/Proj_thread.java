@@ -44,28 +44,32 @@ public class Proj_thread extends Thread {
 		
 		logger.info("Thread start!! accessToken["+accessToken+"]");
 		
-		if (workType==1 || workType == 2){
-			int endPoint = 0;
-			while (!killSw) {
-				getPublic();
+		try {
+			if (workType==1 || workType == 2){
+				int endPoint = 0;
+				while (!killSw) {
+					getPublic();
+					
+					for (int i = 0; i<statusArray.length;i++){
+						getFriends(statusArray[i].getUser().getScreenName());
+					}
+					for (int i = 0; i<statusArray.length;i++){
+						getFollowers(statusArray[i].getUser().getScreenName());
+					}
+					if (endPoint > 500)
+						killSw = true;
+				}
+			} else if (workType ==3){
+				friendArray = new User[100][];
+				getFriends2("李开复", 0);
 				
-				for (int i = 0; i<statusArray.length;i++){
-					getFriends(statusArray[i].getUser().getScreenName());
-				}
-				for (int i = 0; i<statusArray.length;i++){
-					getFollowers(statusArray[i].getUser().getScreenName());
-				}
-				if (endPoint > 500)
-					killSw = true;
+				followerArray = new User[100][];
+				getFollowers2("李开复", 0);
 			}
-		} else if (workType ==3){
-			friendArray = new User[100][];
-			getFriends2("李开复", 0);
-			
-			followerArray = new User[100][];
-			getFollowers2("李开复", 0);
+		} catch (Exception e) {
+			logger.error("Unexpected error.");
+			e.printStackTrace();
 		}
-		
 		logger.warn("Thread Terminated. killSw["+killSw+"] totalNumber["+totalNumber+"]");
 	}
 	
