@@ -51,10 +51,26 @@ public class Proj_thread extends Thread {
 					getPublic();
 					
 					for (int i = 0; i<statusArray.length;i++){
-						getFriends(statusArray[i].getUser().getScreenName());
+						try {
+							if (statusArray[i].getUser() == null || statusArray[i].getUser().getScreenName() == null || statusArray[i].getUser().getScreenName() == "") {
+								logger.warn("data error id:["+statusArray[i].getUser().getId()+"] screen_name:["+statusArray[i].getUser().getScreenName()+"]");
+							} else {
+								getFriends(statusArray[i].getUser().getScreenName());
+							}
+						} catch (Exception ex) {
+							logger.error("Unexpected Error. ex["+ex.toString()+"]");
+						}
 					}
 					for (int i = 0; i<statusArray.length;i++){
-						getFollowers(statusArray[i].getUser().getScreenName());
+						try {
+							if (statusArray[i].getUser() == null || statusArray[i].getUser().getScreenName() == null || statusArray[i].getUser().getScreenName() == "") {
+								logger.warn("data error id:["+statusArray[i].getUser().getId()+"] screen_name:["+statusArray[i].getUser().getScreenName()+"]");
+							} else {
+								getFollowers(statusArray[i].getUser().getScreenName());
+							}
+						} catch (Exception ex) {
+							logger.error("Unexpected Error. ex["+ex.toString()+"]");
+						}
 					}
 					if (endPoint > 500)
 						killSw = true;
