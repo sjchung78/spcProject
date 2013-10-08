@@ -9,7 +9,6 @@ import spc_proj.handler.LogHandler;
 
 import org.codehaus.jackson.map.ser.impl.StaticListSerializerBase;
 
-import sun.security.util.Password;
 
 public class DBDriver {
 	public static String url = "jdbc:mysql://localhost:3306/testdb";
@@ -20,7 +19,7 @@ public class DBDriver {
     ResultSet rs = null;
 
 	public DBDriver(){
-		LogHandler log = new LogHandler();
+		LogHandler log = new LogHandler("DBHandler");
 		try {
             con = DriverManager.getConnection(url, user, password);
             st = con.createStatement();
@@ -31,8 +30,7 @@ public class DBDriver {
             }
 
         } catch (SQLException ex) {
-            Logger lgr = Logger.getLogger(Version.class.getName());
-            lgr.log(Level.SEVERE, ex.getMessage(), ex);
+        	log.error(ex.getMessage());
 
         } finally {
             try {
@@ -47,11 +45,8 @@ public class DBDriver {
                 }
 
             } catch (SQLException ex) {
-                Logger lgr = Logger.getLogger(Version.class.getName());
-                lgr.log(Level.WARNING, ex.getMessage(), ex);
+            	log.error(ex.getMessage());
             }
         }
     }
-
-	}
 }

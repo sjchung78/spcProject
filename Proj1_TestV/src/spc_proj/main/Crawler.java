@@ -1,6 +1,6 @@
 package spc_proj.main;
 
-import unused.Log;
+import spc_proj.handler.LogHandler;
 import weibo4j.Friendships;
 import weibo4j.Users;
 import weibo4j.model.User;
@@ -17,7 +17,7 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 public class Crawler {
 	public static void main(String[] args) throws Exception{
 		String access_token = WeiboConfig.getValue("access_token");
-		
+		LogHandler Log = new LogHandler("Crawler");
 		Queue peopleQueue = new LinkedList();
 		
 		String screen_name = "kaifulee";
@@ -27,11 +27,11 @@ public class Crawler {
 		try {
 			User user = um.showUserByScreenName(screen_name);
 			peopleQueue.add(user);
-			Log.logInfo(user.toString());
+			Log.info(user.toString());
 		} catch (WeiboException e) {
 			e.printStackTrace();
 		}
-		Iterator iterator = peopleQueue.iterator();
+		Iterator iterator = (Iterator) peopleQueue.iterator();
 
 		Friendships fm = new Friendships();
 		fm.client.setToken(access_token);
@@ -40,7 +40,7 @@ public class Crawler {
 			//UserWapper users = fm.getFollowersById(uid, 20, 0);
 			UserWapper users = fm.getFollowersByName(screen_name, 200, 1000);
 			for(User u : users.getUsers()){
-				Log.logInfo(u.toString());
+				Log.info(u.toString());
 			}
 			System.out.println(users.getNextCursor());
 			System.out.println(users.getPreviousCursor());
