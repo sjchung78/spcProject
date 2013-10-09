@@ -2,30 +2,41 @@ package spc_proj.main;
 
 import java.sql.Connection;
 
+import spc_proj.dao.CommentDAO;
 import spc_proj.dao.UserDAO;
 import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
+import spc_proj.wrapper.Weibo_comment;
 import spc_proj.wrapper.Weibo_user;
+import weibo4j.Comments;
 import weibo4j.Friendships;
 import weibo4j.Timeline;
+import weibo4j.model.Comment;
+import weibo4j.model.CommentWapper;
 import weibo4j.model.Status;
 import weibo4j.model.StatusWapper;
 import weibo4j.model.User;
 import weibo4j.model.UserWapper;
+import weibo4j.model.WeiboException;
 
 public class Proj_thread extends Thread {
 
-	Connection conn = null;
-	LogHandler logger = null;
+	private Connection conn = null;
+	private LogHandler logger = null;
 	public boolean killSw = false;
 	private String accessToken = null;
-	StatusWapper sw = null;
+	private StatusWapper sw = null;
+	private CommentWapper cw = null;
 	private Status[] statusArray = null;
+	private Comment[] commentArray = null;
 	private User[][] friendArray = null;
 	private User[][] followerArray = null;
-	UserDAO wrap = null;
+	private UserDAO uDAO = null;
+	private CommentDAO cDAO = null;
+	
 	int workType = 0;
 	int totalNumber = 0;
+	boolean isFriend = false;
 	
 	public Proj_thread(String aToken, LogHandler log, int workType) {
 		super();
@@ -34,7 +45,8 @@ public class Proj_thread extends Thread {
 		this.accessToken = aToken;
 		this.logger = log;
 		this.workType = workType;
-		wrap = new UserDAO(logger, conn);
+		uDAO = new UserDAO(logger, conn);
+		cDAO = new CommentDAO(logger, conn);
 	}
 
 	@Override
@@ -45,7 +57,7 @@ public class Proj_thread extends Thread {
 		logger.info("Thread start!! accessToken["+accessToken+"]");
 		
 		try {
-			if (workType==1 || workType == 2){
+			if (workType==1){
 				int endPoint = 0;
 				while (!killSw) {
 					getPublic();
@@ -75,7 +87,13 @@ public class Proj_thread extends Thread {
 					if (endPoint > 500)
 						killSw = true;
 				}
-			} else if (workType ==3){
+			} else if (workType ==2 ){
+				while (!killSw) {
+					getPublic();
+					getComment();
+				}
+			} else if (workType ==3 ){
+			
 				friendArray = new User[100][];
 				getFriends2("李开复", 0);
 				
@@ -99,7 +117,7 @@ public class Proj_thread extends Thread {
 		
 		try {
 			UserWapper users = fm.getFollowersByName(screen_name, 200, 0);
-			int count = (int)users.getTotalNumber();
+			int count = users.getUsers().size();
 			followerArray[depth] = new User[count];
 			for(User u : users.getUsers()){
 				logger.info(u.toString());
@@ -107,19 +125,22 @@ public class Proj_thread extends Thread {
 				wu = new Weibo_user(u);
 				wu.setCrawl_level(depth);
 				wu.setCrawled(workType);
-				wrap.insert(wu);
+				uDAO.insert(wu);
 				
 				followerArray[depth][i] = u;
 				i++;
 				totalNumber++;
 			}
 			
+			isFriend = false;
+			getCommentUser(followerArray[depth]);
+			
 			depth++;
 			
 			if (depth > 99) {
 				return;
 			}
-			
+						
 			for (i = 0; i< followerArray[depth-1].length; i++) {
 				getFollowers2(followerArray[depth-1][i].getScreenName(), depth);
 			}
@@ -143,7 +164,7 @@ public class Proj_thread extends Thread {
 				wu = new Weibo_user(u);
 				wu.setCrawl_level(0);
 				wu.setCrawled(workType);
-				wrap.insert(wu);
+				uDAO.insert(wu);
 				
 				totalNumber++;
 			}
@@ -170,12 +191,15 @@ public class Proj_thread extends Thread {
 				wu = new Weibo_user(u);
 				wu.setCrawl_level(depth);
 				wu.setCrawled(workType);
-				wrap.insert(wu);
+				uDAO.insert(wu);
 				
 				friendArray[depth][i] = u;
 				i++;
 				totalNumber++;
 			}
+			
+			isFriend = true;
+			getCommentUser(friendArray[depth]);
 			
 			depth++;
 			
@@ -206,7 +230,7 @@ public class Proj_thread extends Thread {
 				wu = new Weibo_user(u);
 				wu.setCrawl_level(0);
 				wu.setCrawled(workType);
-				wrap.insert(wu);
+				uDAO.insert(wu);
 				
 				totalNumber++;
 			}
@@ -223,7 +247,7 @@ public class Proj_thread extends Thread {
 			tm.client.setToken(accessToken);
 			sw = tm.getPublicTimeline(200,0);
 			Weibo_user wu = null;
-			int count = (int)sw.getTotalNumber();
+			int count = sw.getStatuses().size();
 			statusArray = new Status[count];
 			int i = 0;
 			
@@ -231,7 +255,7 @@ public class Proj_thread extends Thread {
 				wu = new Weibo_user(s);
 				wu.setCrawl_level(0);
 				wu.setCrawled(workType);
-				wrap.insert(wu);
+				uDAO.insert(wu);
 				
 				statusArray[i] = s;
 				i++;
@@ -241,6 +265,74 @@ public class Proj_thread extends Thread {
 			
 		} catch (Exception e) {
 			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+	
+	private void getComment() {
+		String id = "";
+		Comments cm =new Comments();
+		Weibo_comment wc = null;
+		cm.client.setToken(accessToken);
+		try {
+			for ( int i = 0 ; i < statusArray.length ; i++ ) {
+				
+				logger.info(statusArray[i].toString());
+				wc = new Weibo_comment(statusArray[i]);
+				cDAO.insert(wc);
+				
+				totalNumber++;
+				
+				id = statusArray[i].getId();
+//				System.out.println(statusArray[i].toString());
+				CommentWapper comment = cm.getCommentById(id);
+				int count = comment.getComments().size();
+				commentArray = new Comment[count];
+				int j = 0;
+				
+				for(Comment c : comment.getComments()){
+					logger.info(c.toString());
+					wc = new Weibo_comment(c);
+					cDAO.insert(wc);
+					
+					commentArray[j] = c;
+					
+					j++;
+					totalNumber++;
+				}
+			}
+		} catch (WeiboException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void getCommentUser(User[] uArray) {
+		String id = "";
+		Comments cm =new Comments();
+		Weibo_comment wc = null;
+		cm.client.setToken(accessToken);
+		try {
+			for ( int i = 0 ; i < uArray.length ; i++ ) {
+				logger.info(uArray[i].toString());
+				id = uArray[i].getStatusId();
+//				System.out.println(statusArray[i].toString());
+				CommentWapper comment = cm.getCommentById(id);
+				int count = comment.getComments().size();
+				commentArray = new Comment[count];
+				int j = 0;
+				
+				for(Comment c : comment.getComments()){
+					logger.info(c.toString());
+					wc = new Weibo_comment(c);
+					cDAO.insert(wc);
+					
+					commentArray[j] = c;
+					
+					j++;
+					totalNumber++;
+				}
+			}
+		} catch (WeiboException e) {
 			e.printStackTrace();
 		}
 	}

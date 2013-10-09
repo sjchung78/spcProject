@@ -1,14 +1,18 @@
 package spc_proj.wrapper;
 
 import java.sql.Blob;
+import java.util.Date;
+
+import spc_proj.utils.StringUtil;
+import weibo4j.model.Comment;
+import weibo4j.model.Status;
 
 public class Weibo_comment {
 
 	private String id           = null; 
-	private String up_date      = null;
-	private String ucomment     = null;
+	private Date created_at   = null;
+	private String text         = null;
 	private String comment_type = null;
-	private String uid          = null;
 	private String comment_id   = null;
 	private String etc1         = null;
 	private String etc2         = null;
@@ -16,15 +20,14 @@ public class Weibo_comment {
 	private String insert_date  = null;
 	private int blob_score   = -1;
 	
-	public Weibo_comment(String id, String up_date, String ucomment,
-			String comment_type, String uid, String comment_id, String etc1,
+	public Weibo_comment(String id, Date created_at, String text,
+			String comment_type, String comment_id, String etc1,
 			String etc2, String etc3, String insert_date, int blob_score) {
 		super();
 		this.id = id;
-		this.up_date = up_date;
-		this.ucomment = ucomment;
+		this.created_at = created_at;
+		this.text = text;
 		this.comment_type = comment_type;
-		this.uid = uid;
 		this.comment_id = comment_id;
 		this.etc1 = etc1;
 		this.etc2 = etc2;
@@ -33,6 +36,28 @@ public class Weibo_comment {
 		this.blob_score = blob_score;
 	}
 
+	public Weibo_comment(Comment c) {
+		// TODO Auto-generated constructor stub
+		this.id = c.getUser().getId();
+		this.created_at = c.getCreatedAt();
+		this.text = c.getText();
+		this.comment_type = "C";
+		this.comment_id = ""+c.getId();
+
+		this.insert_date = StringUtil.getCurrent(1);
+	}
+	
+	public Weibo_comment(Status s) {
+		// TODO Auto-generated constructor stub
+		this.id = s.getUser().getId();
+		this.created_at = s.getCreatedAt();
+		this.text = s.getText();
+		this.comment_type = "S";
+		this.comment_id = ""+s.getId();
+
+		this.insert_date = StringUtil.getCurrent(1);
+	}
+	
 	public String getId() {
 		return id;
 	}
@@ -41,20 +66,20 @@ public class Weibo_comment {
 		this.id = id;
 	}
 
-	public String getUp_date() {
-		return up_date;
+	public Date getCreated_at() {
+		return created_at;
 	}
 
-	public void setUp_date(String up_date) {
-		this.up_date = up_date;
+	public void setCreated_at(Date created_at) {
+		this.created_at = created_at;
 	}
 
-	public String getUcomment() {
-		return ucomment;
+	public String getText() {
+		return text;
 	}
 
-	public void setUcomment(String ucomment) {
-		this.ucomment = ucomment;
+	public void setText(String text) {
+		this.text = text;
 	}
 
 	public String getComment_type() {
@@ -63,14 +88,6 @@ public class Weibo_comment {
 
 	public void setComment_type(String comment_type) {
 		this.comment_type = comment_type;
-	}
-
-	public String getUid() {
-		return uid;
-	}
-
-	public void setUid(String uid) {
-		this.uid = uid;
 	}
 
 	public String getComment_id() {

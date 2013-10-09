@@ -106,7 +106,6 @@ public class Weibo_user {
 		this.request_id2 = request_id2;
 		this.url_score1 = url_score1;
 		this.url_score2 = url_score2;
-		convert();
 	}
 
 	public Weibo_user(Status s) {
@@ -145,7 +144,6 @@ public class Weibo_user {
 		
 		this.blog_url = s.getUser().getUrl();
 		this.insert_date = StringUtil.getCurrent(1);
-		convert();
 	}
 	
 	public Weibo_user(User u) {
@@ -184,34 +182,6 @@ public class Weibo_user {
 		
 		this.blog_url = u.getUrl();
 		this.insert_date = StringUtil.getCurrent(1);
-		convert();
-	}
-
-	private void convert(){
-		try {
-//			setId(new String(getId().getBytes(), "UTF-8"));
-//			setScreen_name (new String(getScreen_name().getBytes("GB2312"), "UTF8"));
-//			setName(new String(getName().getBytes(), "UTF8"));
-//			setLocation(new String(getLocation().getBytes(), "UTF8"));
-//			setDescription (new String(getDescription().getBytes(), "UTF8"));
-//			setUrl (new String(getUrl().getBytes(), "UTF-8"));
-//			setUser_domain (new String(getUser_domain().getBytes(), "UTF-8"));
-//			setGender(new String(getGender().getBytes(), "UTF-8"));
-//			setAvatar_large(new String(getAvatar_large().getBytes(), "UTF-8"));
-//			setRemark(new String(getRemark().getBytes(), "UTF-8"));
-//			setLang(new String(getLang().getBytes(), "UTF-8"));
-//			setVerified_reason (new String(getVerified_reason().getBytes(), "UTF-8"));
-//			setWeihao(new String(getWeihao().getBytes(), "UTF-8"));
-//			setStatus_id (new String(getStatus_id().getBytes(), "UTF-8"));
-//			setUid (new String(getUid().getBytes(), "UTF-8"));
-//			setBlog_url(new String(getBlog_url().getBytes(), "UTF-8"));
-//
-//			String enc = new java.io.OutputStreamWriter(System.out).getEncoding();
-//            System.out.println("default encoding = " + enc);
-            
-		} catch (Exception e) {
-			
-		}
 	}
 	
 	public String getId() {
