@@ -65,7 +65,7 @@ public class UserDAO {
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.executeUpdate();
-			logger.info("Insert successfully. id["+wu.getId()+"] screen_name["+wu.getScreen_name()+"]");
+			logger.debug("Insert successfully. id["+wu.getId()+"] screen_name["+wu.getScreen_name()+"]");
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();

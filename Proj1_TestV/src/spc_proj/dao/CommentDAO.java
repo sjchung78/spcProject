@@ -32,7 +32,7 @@ public class CommentDAO {
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.executeUpdate();
-			logger.info("Insert successfully. id["+wc.getId()+"] text["+wc.getText()+"]");
+			logger.debug("Insert successfully. id["+wc.getId()+"] text["+wc.getText()+"]");
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();

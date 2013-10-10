@@ -93,12 +93,17 @@ public class Proj_thread extends Thread {
 					getComment();
 				}
 			} else if (workType ==3 ){
-			
-				friendArray = new User[100][];
-				getFriends2("李开复", 0);
-				
-				followerArray = new User[100][];
-				getFollowers2("李开复", 0);
+				try {
+					friendArray = new User[100][];
+					getFriends2("李开复", 0);
+					
+					followerArray = new User[100][];
+					getFollowers2("李开复", 0);
+					
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					logger.error("Error from workType 3.\n" + ex.toString());
+				}
 			}
 		} catch (Exception e) {
 			logger.error("Unexpected error.");
@@ -120,7 +125,7 @@ public class Proj_thread extends Thread {
 			int count = users.getUsers().size();
 			followerArray[depth] = new User[count];
 			for(User u : users.getUsers()){
-				logger.info(u.toString());
+				logger.debug(u.toString());
 				
 				wu = new Weibo_user(u);
 				wu.setCrawl_level(depth);
@@ -146,6 +151,7 @@ public class Proj_thread extends Thread {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("error in getFollowers2()\n"+e.toString());
 		}
 	}
 	
@@ -159,7 +165,7 @@ public class Proj_thread extends Thread {
 		try {
 			UserWapper users = fm.getFollowersByName(screen_name, 200, 0);
 			for(User u : users.getUsers()){
-				logger.info(u.toString());
+				logger.debug(u.toString());
 				
 				wu = new Weibo_user(u);
 				wu.setCrawl_level(0);
@@ -170,6 +176,7 @@ public class Proj_thread extends Thread {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("error in getFollowers()\n"+e.toString());
 		}
 	}
 
@@ -186,7 +193,7 @@ public class Proj_thread extends Thread {
 			int count = users.getUsers().size();
 			friendArray[depth] = new User[count];
 			for(User u : users.getUsers()){
-				logger.info(u.toString());
+				logger.debug(u.toString());
 				
 				wu = new Weibo_user(u);
 				wu.setCrawl_level(depth);
@@ -213,6 +220,7 @@ public class Proj_thread extends Thread {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("error in getFriends2()\n"+e.toString());
 		}
 	}
 	
@@ -225,7 +233,7 @@ public class Proj_thread extends Thread {
 		try {
 			UserWapper users = fm.getFriendsByScreenName(screen_name);
 			for(User u : users.getUsers()){
-				logger.info(u.toString());
+				logger.debug(u.toString());
 				
 				wu = new Weibo_user(u);
 				wu.setCrawl_level(0);
@@ -236,6 +244,7 @@ public class Proj_thread extends Thread {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("error in getFriends()\n"+e.toString());
 		}
 	}
 
@@ -266,6 +275,7 @@ public class Proj_thread extends Thread {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
+			logger.error("error in getPublic()\n"+e.toString());
 		}
 	}
 	
@@ -277,7 +287,7 @@ public class Proj_thread extends Thread {
 		try {
 			for ( int i = 0 ; i < statusArray.length ; i++ ) {
 				
-				logger.info(statusArray[i].toString());
+				logger.debug(statusArray[i].toString());
 				wc = new Weibo_comment(statusArray[i]);
 				cDAO.insert(wc);
 				
@@ -291,7 +301,7 @@ public class Proj_thread extends Thread {
 				int j = 0;
 				
 				for(Comment c : comment.getComments()){
-					logger.info(c.toString());
+					logger.debug(c.toString());
 					wc = new Weibo_comment(c);
 					cDAO.insert(wc);
 					
@@ -303,6 +313,7 @@ public class Proj_thread extends Thread {
 			}
 		} catch (WeiboException e) {
 			e.printStackTrace();
+			logger.error("error in getComment()\n"+e.toString());
 		}
 	}
 	
@@ -313,7 +324,7 @@ public class Proj_thread extends Thread {
 		cm.client.setToken(accessToken);
 		try {
 			for ( int i = 0 ; i < uArray.length ; i++ ) {
-				logger.info(uArray[i].toString());
+				logger.debug(uArray[i].toString());
 				id = uArray[i].getStatusId();
 //				System.out.println(statusArray[i].toString());
 				CommentWapper comment = cm.getCommentById(id);
@@ -322,7 +333,7 @@ public class Proj_thread extends Thread {
 				int j = 0;
 				
 				for(Comment c : comment.getComments()){
-					logger.info(c.toString());
+					logger.debug(c.toString());
 					wc = new Weibo_comment(c);
 					cDAO.insert(wc);
 					
@@ -334,6 +345,7 @@ public class Proj_thread extends Thread {
 			}
 		} catch (WeiboException e) {
 			e.printStackTrace();
+			logger.error("error in getCommentUser()\n"+e.toString());
 		}
 	}
 }
