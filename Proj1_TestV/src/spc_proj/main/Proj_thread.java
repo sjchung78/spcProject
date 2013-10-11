@@ -58,39 +58,52 @@ public class Proj_thread extends Thread {
 		
 		try {
 			if (workType==1){
-				int endPoint = 0;
-				while (!killSw) {
-					getPublic();
-					
-					for (int i = 0; i<statusArray.length;i++){
-						try {
-							if (statusArray[i].getUser() == null || statusArray[i].getUser().getScreenName() == null || statusArray[i].getUser().getScreenName() == "") {
-								logger.warn("data error id:["+statusArray[i].getUser().getId()+"] screen_name:["+statusArray[i].getUser().getScreenName()+"]");
-							} else {
-								getFriends(statusArray[i].getUser().getScreenName());
-							}
-						} catch (Exception ex) {
-							logger.error("Unexpected Error. ex["+ex.toString()+"]");
+				try {
+					int endPoint = 0;
+					while (!killSw) {
+						getPublic();
+						int count = 0;
+						if (statusArray==null){
+							count = 0;
+						} else {
+							count = statusArray.length;
 						}
-					}
-					for (int i = 0; i<statusArray.length;i++){
-						try {
-							if (statusArray[i].getUser() == null || statusArray[i].getUser().getScreenName() == null || statusArray[i].getUser().getScreenName() == "") {
-								logger.warn("data error id:["+statusArray[i].getUser().getId()+"] screen_name:["+statusArray[i].getUser().getScreenName()+"]");
-							} else {
-								getFollowers(statusArray[i].getUser().getScreenName());
+						for (int i = 0; i<count;i++){
+							try {
+								if (statusArray[i].getUser() == null || statusArray[i].getUser().getScreenName() == null || statusArray[i].getUser().getScreenName() == "") {
+									logger.warn("data error id:["+statusArray[i].getUser().getId()+"] screen_name:["+statusArray[i].getUser().getScreenName()+"]");
+								} else {
+									getFriends(statusArray[i].getUser().getScreenName());
+								}
+							} catch (Exception ex) {
+								logger.error("Unexpected Error. ex["+ex.toString()+"]");
 							}
-						} catch (Exception ex) {
-							logger.error("Unexpected Error. ex["+ex.toString()+"]");
 						}
+						for (int i = 0; i<count;i++){
+							try {
+								if (statusArray[i].getUser() == null || statusArray[i].getUser().getScreenName() == null || statusArray[i].getUser().getScreenName() == "") {
+									logger.warn("data error id:["+statusArray[i].getUser().getId()+"] screen_name:["+statusArray[i].getUser().getScreenName()+"]");
+								} else {
+									getFollowers(statusArray[i].getUser().getScreenName());
+								}
+							} catch (Exception ex) {
+								logger.error("Unexpected Error. ex["+ex.toString()+"]");
+							}
+						}
+						if (endPoint > 500)
+							killSw = true;
 					}
-					if (endPoint > 500)
-						killSw = true;
+				}catch (Exception ex) {
+					logger.error("Error from workType 1.\n ex["+ex.toString()+"]");
 				}
 			} else if (workType ==2 ){
 				while (!killSw) {
-					getPublic();
-					getComment();
+					try{
+						getPublic();
+						getComment();
+					} catch (Exception ex) {
+						logger.error("Error from workType 2.\n. ex["+ex.toString()+"]");
+					}
 				}
 			} else if (workType ==3 ){
 				try {
@@ -336,8 +349,7 @@ public class Proj_thread extends Thread {
 					logger.debug(c.toString());
 					wc = new Weibo_comment(c);
 					cDAO.insert(wc);
-					
-					commentArray[j] = c;
+ 					commentArray[j] = c;
 					
 					j++;
 					totalNumber++;

@@ -3,6 +3,7 @@ package spc_proj.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
 import spc_proj.wrapper.Weibo_comment;
 import spc_proj.wrapper.Weibo_user;
@@ -36,8 +37,17 @@ public class CommentDAO {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			logger.error("Insert Data failed. id["+wc.getId()+"] text["+wc.getText()+"]");
+//			logger.error("Insert Data failed. id["+wc.getId()+"] text["+wc.getText()+"]");
 			logger.error(sql);
+			try {
+				if (conn.isClosed()) {
+					logger.error("Reconnecting");
+					DbHandler dh = new DbHandler();
+					this.conn = dh.connect();
+				}
+			} catch (Exception ex) {
+				
+			}
 			return false;
 		}
 		

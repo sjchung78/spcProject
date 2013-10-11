@@ -3,6 +3,7 @@ package spc_proj.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
 import spc_proj.wrapper.Weibo_user;
 
@@ -69,8 +70,18 @@ public class UserDAO {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			logger.error("Insert Data failed. id["+wu.getId()+"] screen_name["+wu.getScreen_name()+"]");
+//			logger.error("Insert Data failed. id["+wu.getId()+"] screen_name["+wu.getScreen_name()+"]");
 			logger.error(sql);
+			
+			try {
+				if (conn.isClosed()) {
+					logger.error("Reconnecting");
+					DbHandler dh = new DbHandler();
+					this.conn = dh.connect();
+				}
+			} catch (Exception ex) {
+				
+			}
 			return false;
 		}
 		
