@@ -21,18 +21,6 @@ public class Proj_Main {
 			new Proj_thread(accessTokens[i], new LogHandler("Thread" + i), i).start();
 		}
 		
-		
-		int i = 0;
-		while (true) {
-			try {
-				Thread.sleep(100000);
-				logger.debug("i["+ (i++) +"]-th");
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-			
-		}
-		
 	}
 
 }
