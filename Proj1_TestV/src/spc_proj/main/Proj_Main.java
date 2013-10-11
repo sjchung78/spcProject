@@ -4,8 +4,8 @@ import java.sql.Connection;
 
 import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
+import spc_proj.utils.AccessToken;
 import weibo4j.util.WeiboConfig;
-import weibo4j.util.AccessToken;
 public class Proj_Main {
 	
 	/**
