@@ -28,12 +28,18 @@ import java.util.Vector;
 
 import javax.swing.text.html.HTMLDocument.Iterator;
 
+import org.apache.logging.log4j.core.filter.BurstFilter;
+
 import com.mysql.jdbc.Statement;
 
 public class BFSCrawler extends Thread {
 	// SN is short for screenName
+	private static int sleepTime = 500;
 	private static HashSet<String> SNAll = new HashSet<String>();
 	private static Vector<UserNotCraw> SNNotCrawled = new Vector<UserNotCraw>();
+	private static boolean SNAllUsing = false;//make sure SNAll is exclusively used by different threads, avoiding duplication
+	private static boolean SNNotCrawledUsing = false;//the same
+	private static LogHandler classLogger = new LogHandler("BFSCrawler_Class");
 	private Connection conn = null;
 	private String accessToken = null;
 	private LogHandler logger = null;
@@ -50,26 +56,50 @@ public class BFSCrawler extends Thread {
 		comDAO = new CommentDAO(logger, dh);
 		conDAO = new ConnectionDAO(logger, dh);
 	}
-
+	public static void SNAllAdd(String SN){
+		while(SNAllUsing){
+			try{
+				Thread.sleep(BFSCrawler.sleepTime);
+			}catch(InterruptedException IE){
+				IE.printStackTrace();
+				classLogger.error("Tread is interrupted!");
+			}
+		}
+		SNAllUsing = true;
+		SNAll.add(SN);
+		SNAllUsing = false;
+	}
+	public static void SNNotCrawledAdd(UserNotCraw u){
+		while(SNNotCrawledUsing){
+			try{
+				Thread.sleep(BFSCrawler.sleepTime);
+			}catch(InterruptedException IE){
+				IE.printStackTrace();
+				classLogger.error("Tread is interrupted!");
+			}
+		}
+		SNNotCrawledUsing = true;
+		SNNotCrawled.add(u);
+		SNNotCrawledUsing = false;
+	}
 	public static void addFirstScreenName() {
 		String firstSN = WeiboConfig.getValue("firstScreeName");
 		Users UM = new Users();
 		UM.client.setToken(AccessToken.getAll()[0]);
-		LogHandler logger = new LogHandler("BFSCrawler_addFirstScreenName");
 		try {
 			User user = UM.showUserByScreenName(firstSN);
 			WeiboUser WU = new WeiboUser(user);
 			WU.setCrawl_level(0);
 			WU.setCrawled(0);
 			DbHandler dh = new DbHandler();
-			UserDAO uDAO = new UserDAO(logger, dh);
+			UserDAO uDAO = new UserDAO(classLogger, dh);
 			uDAO.insert(WU);
 			String SN = WU.getScreen_name();
-			SNAll.add(SN);
-			SNNotCrawled.add(new UserNotCraw(SN, 0));
+			SNAllAdd(SN);
+			SNNotCrawledAdd(new UserNotCraw(SN, 0));
 		} catch (WeiboException e) {
 			// TODO Auto-generated catch block
-			logger.error("Can't addFirstScreenName");
+			classLogger.error("Can't addFirstScreenName");
 			e.printStackTrace();
 		}
 
@@ -86,9 +116,9 @@ public class BFSCrawler extends Thread {
 				String SN = rs.getString(1);
 				int crawled = rs.getInt(2);
 				int crawlLevel = rs.getInt(3);
-				BFSCrawler.SNAll.add(SN);
+				BFSCrawler.SNAllAdd(SN);
 				if (crawled == 0) {
-					BFSCrawler.SNNotCrawled.add(new UserNotCraw(SN, crawlLevel));
+					BFSCrawler.SNNotCrawledAdd(new UserNotCraw(SN, crawlLevel));
 				}
 			}
 			if (!hasSN) {// If the set is empty, then add one
@@ -117,8 +147,8 @@ public class BFSCrawler extends Thread {
 					WU.setCrawl_level(level + 1);
 					WU.setCrawled(0);
 					uDAO.insert(WU);
-					SNAll.add(SN);
-					SNNotCrawled.add(new UserNotCraw(SN, level + 1));
+					SNAllAdd(SN);
+					SNNotCrawledAdd(new UserNotCraw(SN, level + 1));
 				}
 			}
 

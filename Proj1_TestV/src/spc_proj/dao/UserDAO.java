@@ -1,5 +1,6 @@
 package spc_proj.dao;
 
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -25,9 +26,9 @@ public class UserDAO {
 	}
 	public boolean insert(WeiboUser wu) {
 		String sql = "";
-		
 		sql =  "INSERT INTO weibo_user (id,screen_name,name,province,city,location," +
-				"description,url,profile_image_url,user_domain,gender,followers_count," +
+			//	"description,"
+				"url,profile_image_url,user_domain,gender,followers_count," +
 				"friends_count,statuses_count,favourites_count,created_at,following,verified," +
 				"verified_type,allow_all_act_msg,allow_all_comment,follow_me,avatar_large," +
 				"online_status,bi_followers_count,remark,lang,verified_reason,weihao," +
@@ -38,7 +39,7 @@ public class UserDAO {
 		sql += "'"+wu.getProvince()+"',";
 		sql += "'"+wu.getCity()+"',";
 		sql += "'"+wu.getLocation()+"',";
-		sql += "'"+wu.getDescription().replaceAll("'", "")+"',";
+		//sql += "'"+wu.getDescription().replaceAll("'", "‘")+"',";
 		sql += "'"+wu.getUrl()+"',";
 		sql += "'"+wu.getProfile_image_url()+"',";
 		sql += "'"+wu.getUser_domain()+"',";
