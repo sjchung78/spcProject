@@ -7,7 +7,7 @@ import spc_proj.utils.StringUtil;
 import weibo4j.model.Comment;
 import weibo4j.model.Status;
 
-public class Weibo_comment {
+public class WeiboComment {
 
 	private String id           = null; 
 	private Date created_at   = null;
@@ -20,7 +20,7 @@ public class Weibo_comment {
 	private String insert_date  = null;
 	private int blob_score   = -1;
 	
-	public Weibo_comment(String id, Date created_at, String text,
+	public WeiboComment(String id, Date created_at, String text,
 			String comment_type, String comment_id, String etc1,
 			String etc2, String etc3, String insert_date, int blob_score) {
 		super();
@@ -36,7 +36,7 @@ public class Weibo_comment {
 		this.blob_score = blob_score;
 	}
 
-	public Weibo_comment(Comment c) {
+	public WeiboComment(Comment c) {
 		// TODO Auto-generated constructor stub
 		this.id = c.getUser().getId();
 		this.created_at = c.getCreatedAt();
@@ -47,7 +47,7 @@ public class Weibo_comment {
 		this.insert_date = StringUtil.getCurrent(1);
 	}
 	
-	public Weibo_comment(Status s) {
+	public WeiboComment(Status s) {
 		// TODO Auto-generated constructor stub
 		this.id = s.getUser().getId();
 		this.created_at = s.getCreatedAt();

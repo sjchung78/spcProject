@@ -6,18 +6,25 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 
+import org.apache.logging.log4j.core.helpers.Closer;
+
+import com.mysql.jdbc.PreparedStatement;
+
 import weibo4j.util.WeiboConfig;
 
 public class DbHandler {
-	public Connection conn = null;
+	private Connection conn = null;
+	private Statement stmt = null;
+	private ResultSet rs = null;
 	private LogHandler logger = null;
 	
 	public DbHandler() {
 		// TODO Auto-generated constructor stub
 		this.logger = new LogHandler("DbHandler");
+		connect();
 	}
 
-	public Connection connect() {
+	public void connect() {
 		try {
 			if (conn == null || conn.isClosed()) {
 				Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -39,7 +46,79 @@ public class DbHandler {
 		    e.printStackTrace();
 		    conn = null;
 		}
-		return conn;
+	}
+	public boolean insert(String sql){
+		closeRsStmt();
+		try{
+			stmt = conn.createStatement();
+			try{
+				stmt.executeUpdate(sql);
+			}catch(SQLException ex){
+				ex.printStackTrace();
+				logger.error("Can't excuteUpdate!");
+				return false;
+			}
+		}catch(Exception ex){
+			ex.printStackTrace();
+			logger.error("Can't createStatement!");
+			return false;
+		}
+		return true;
+	}
+	public ResultSet query(String sql){
+		closeRsStmt();
+		try{
+			stmt = conn.createStatement();
+			try{
+				rs = stmt.executeQuery(sql);
+			}catch(SQLException ex){
+				ex.printStackTrace();
+				logger.error("Can't excuteQuery!");
+				return null;
+			}
+		}catch(Exception ex){
+			ex.printStackTrace();
+			logger.error("Can't createStatement!");
+			return null;
+		}
+		return rs;
+	}
+	private void closeStmt(){
+		try{
+			if (stmt != null){
+				stmt.close();
+				stmt = null;
+			}
+		}catch(SQLException ex){
+			ex.printStackTrace();
+			logger.error("Can't close statement!");
+		}
+	}
+	private void closeRsStmt(){
+		try{
+			if (rs != null){
+				rs.close();
+				rs = null;
+			}
+		}catch(SQLException ex){
+			ex.printStackTrace();
+			logger.error("Can't close resultset!");
+		}finally{
+			closeStmt();
+		}
+	}
+	public boolean close(){
+		closeRsStmt();
+		try{
+			if (conn != null){
+				conn.close();
+			}
+		}catch(SQLException ex){
+			ex.printStackTrace();
+			logger.error("Can't close connection");
+			return false;
+		}
+		return true;
 	}
 	
 	public void select() {

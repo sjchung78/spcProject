@@ -5,21 +5,21 @@ import java.sql.PreparedStatement;
 
 import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
-import spc_proj.wrapper.Weibo_comment;
-import spc_proj.wrapper.Weibo_user;
+import spc_proj.wrapper.WeiboComment;
+import spc_proj.wrapper.WeiboUser;
 
 public class CommentDAO {
 
-	private Weibo_comment wc = null;
+	private WeiboComment wc = null;
 	private LogHandler logger = null;
-	private Connection conn = null;
+	private DbHandler dh = null;
 	
-	public CommentDAO(LogHandler log, Connection conn) {
+	public CommentDAO(LogHandler log, DbHandler dh) {
 		this.logger = log;
-		this.conn = conn;
+		this.dh = dh;
 	}
 	
-	public boolean insert(Weibo_comment wc) {
+	public boolean insert(WeiboComment wc) {
 		String sql = "";
 		
 		sql =  "INSERT INTO weibo_comment (id,created_at,text,comment_type,comment_id,insert_date) VALUES (";
@@ -29,8 +29,11 @@ public class CommentDAO {
 		sql += "'"+wc.getComment_type()+"',";
 		sql += "'"+wc.getComment_id()+"',";
 		sql += "'"+wc.getInsert_date()+"')";
-		
-		try {
+		if (dh.insert(sql)){
+			logger.debug("Insert successfully. id["+wc.getId()+"] text["+wc.getText()+"]");
+			return true;
+		}else return false;
+/*		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.executeUpdate();
 			logger.debug("Insert successfully. id["+wc.getId()+"] text["+wc.getText()+"]");
@@ -51,7 +54,7 @@ public class CommentDAO {
 			return false;
 		}
 		
-		return true;
+		return true;*/
 		 
 	}
 

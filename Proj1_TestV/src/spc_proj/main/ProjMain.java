@@ -6,11 +6,12 @@ import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
 import spc_proj.utils.AccessToken;
 import weibo4j.util.WeiboConfig;
-public class Proj_Main {
+public class ProjMain {
 	
 	/**
 	 * @param args  
 	 */
+	
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		LogHandler logger = new LogHandler("Proj_Main");
@@ -18,7 +19,7 @@ public class Proj_Main {
 		String[] accessTokens = AccessToken.getAll();
 
 		for (int i = 0; i < accessTokens.length; i++){
-			new Proj_thread(accessTokens[i], new LogHandler("Thread" + i), i).start();
+			new ProjThread(accessTokens[i], new LogHandler("Thread" + i), i%ProjThread.totalTypes).start();
 		}
 		
 	}

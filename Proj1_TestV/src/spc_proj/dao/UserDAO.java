@@ -3,22 +3,24 @@ package spc_proj.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+import javax.crypto.spec.DHGenParameterSpec;
+
 import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
-import spc_proj.wrapper.Weibo_user;
+import spc_proj.wrapper.WeiboUser;
 
 
 public class UserDAO {
-	private Weibo_user wu = null;
+	private WeiboUser wu = null;
 	private LogHandler logger = null;
-	private Connection conn = null;
+	private DbHandler dh = null;
 	
-	public UserDAO(LogHandler log, Connection conn) {
+	public UserDAO(LogHandler log, DbHandler dh) {
 		this.logger = log;
-		this.conn = conn;
+		this.dh = dh;
 	}
 	
-	public boolean insert(Weibo_user wu) {
+	public boolean insert(WeiboUser wu) {
 		String sql = "";
 		
 		sql =  "INSERT INTO weibo_user (id,screen_name,name,province,city,location," +
@@ -63,7 +65,14 @@ public class UserDAO {
 		sql += "'"+wu.getUid()+"',";
 		sql += "'"+wu.getBlog_url()+"')";
 		
-		try {
+		
+		if (dh.insert(sql)){
+			logger.debug("Insert successfully. id["+wu.getId()+"] screen_name["+wu.getScreen_name()+"]");
+			return true;
+		}else return false;
+
+/*		try {
+			conn.insert(sql)
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.executeUpdate();
 			logger.debug("Insert successfully. id["+wu.getId()+"] screen_name["+wu.getScreen_name()+"]");
@@ -83,9 +92,6 @@ public class UserDAO {
 				
 			}
 			return false;
-		}
-		
-		return true;
-		 
+		}*/
 	}
 }

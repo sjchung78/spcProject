@@ -7,7 +7,7 @@ import spc_proj.utils.StringUtil;
 import weibo4j.model.Status;
 import weibo4j.model.User;
 
-public class Weibo_user {
+public class WeiboUser {
 
 	private String id = null;
 	private String screen_name = null;
@@ -52,7 +52,7 @@ public class Weibo_user {
 	private String url_score2 = null;
 
 	
-	public Weibo_user(String id, String screen_name, String name, int province,
+	public WeiboUser(String id, String screen_name, String name, int province,
 			int city, String location, String description, String url,
 			URL profile_image_url, String user_domain, String gender,
 			int followers_count, int friends_count, int statuses_count,
@@ -108,7 +108,7 @@ public class Weibo_user {
 		this.url_score2 = url_score2;
 	}
 
-	public Weibo_user(Status s) {
+	public WeiboUser(Status s) {
 		// TODO Auto-generated constructor stub
 		this.id = s.getUser().getId();
 		this.screen_name = s.getUser().getScreenName();
@@ -146,7 +146,7 @@ public class Weibo_user {
 		this.insert_date = StringUtil.getCurrent(1);
 	}
 	
-	public Weibo_user(User u) {
+	public WeiboUser(User u) {
 		// TODO Auto-generated constructor stub
 		this.id = u.getId();
 		this.screen_name = u.getScreenName();
