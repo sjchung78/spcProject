@@ -20,6 +20,9 @@ public class UserDAO {
 		this.dh = dh;
 	}
 	
+	public boolean setCrawled(String screenName){
+		return dh.update("update weibo_user set crawled=1 where screen_name='" + screenName + "'");
+	}
 	public boolean insert(WeiboUser wu) {
 		String sql = "";
 		

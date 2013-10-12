@@ -47,7 +47,7 @@ public class DbHandler {
 		    conn = null;
 		}
 	}
-	public boolean insert(String sql){
+	public boolean update(String sql){
 		closeRsStmt();
 		try{
 			stmt = conn.createStatement();
@@ -61,6 +61,24 @@ public class DbHandler {
 		}catch(Exception ex){
 			ex.printStackTrace();
 			logger.error("Can't createStatement!");
+			return false;
+		}
+		return true;
+	}
+	public boolean insert(String sql){
+		closeRsStmt();
+		try{
+			stmt = conn.createStatement();
+			try{
+				stmt.executeUpdate(sql);
+			}catch(SQLException ex){
+				ex.printStackTrace();
+				logger.error("Can't excuteUpdate:" + sql);
+				return false;
+			}
+		}catch(Exception ex){
+			ex.printStackTrace();
+			logger.error("Can't createStatement:" + sql);
 			return false;
 		}
 		return true;
