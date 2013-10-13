@@ -511,6 +511,8 @@ public class WeiboUser {
 	public void setUrl_score2(String url_score2) {
 		this.url_score2 = url_score2;
 	}
-
+	public static void getFollowerCount(){
+		
+	}
 	
 }
