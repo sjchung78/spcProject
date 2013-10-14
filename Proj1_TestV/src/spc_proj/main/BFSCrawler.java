@@ -131,7 +131,7 @@ public class BFSCrawler extends Thread {
 		}
 	}
 
-	private void getFriends(String name, int level) {
+	private void getFriendsAndFollowers(String name, int level) {
 		// TODO Auto-generated method stub
 		String screen_name = name;
 		Friendships fm = new Friendships();
@@ -142,13 +142,18 @@ public class BFSCrawler extends Thread {
 			for (User u : users.getUsers()) {
 				logger.debug(u.toString());
 				String SN = u.getScreenName();
+				int crawBit = 1;
+				if (u.getFollowersCount() >= 200)
+					crawBit = 0;
 				if (!SNAll.contains(SN)) {
 					WU = new WeiboUser(u);// WeiboUser
 					WU.setCrawl_level(level + 1);
-					WU.setCrawled(0);
+					WU.setCrawled(crawBit);
 					uDAO.insert(WU);
-					SNAll.add(SN);
-					SNNotCrawled.add(new UserNotCraw(SN, level + 1));
+					if (crawBit == 0) {
+						SNAll.add(SN);
+						SNNotCrawled.add(new UserNotCraw(SN, level + 1));
+					}
 				}
 			}
 
@@ -166,7 +171,7 @@ public class BFSCrawler extends Thread {
 			String name = SU.getScreenName();
 			SNNotCrawled.remove(SU);
 			level = SU.getCrawlLevel();
-			getFriends(name, level);
+			getFriendsAndFollowers(name, level);
 			uDAO.setCrawled(name);
 		}
 	}
