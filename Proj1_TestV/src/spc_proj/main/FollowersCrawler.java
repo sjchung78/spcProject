@@ -57,19 +57,11 @@ public class FollowersCrawler extends Thread {
 		Users um = new Users();
 		um.client.setToken(WeiboConfig.getValue("main_access_token"));
 		try {
+			um.showUserById("1197161814");
 			User u = um.showUserByScreenName(bigName);
-			String uids = u.getId();
-			JSONObject count = um.getUserCount(uids).getJSONObject(0);
-/*			{
-				"id": 1197161814,
-				"followers_count": 51774413,
-				"friends_count": 552,
-				"statuses_count": 13747,
-				"private_friends_count": 0
-			}_*/
-			followersCount = count.getInt("followers_count");
-			friendsCount = count.getInt("friends_count");
-			statusesCount = count.getInt("statuses_count");
+			followersCount = u.getFollowersCount();
+			friendsCount = u.getFriendsCount();
+			statusesCount = u.getStatusesCount();
 		} catch (Exception e) {
 			e.printStackTrace();
 			classLogger.error("error in getFriends()\n" + e.toString());
@@ -105,6 +97,8 @@ public class FollowersCrawler extends Thread {
 		WeiboUser WU = null;
 		try {
 			int cursor = getCursor();
+			logger.debug("Friends cursor: " + cursor);
+			logger.error(""+cursor);
 			UserWapper users = fm.getFollowersByName(FollowersCrawler.bigName, 200, cursor);
 			for (User u : users.getUsers()) {
 				logger.debug(u.toString());

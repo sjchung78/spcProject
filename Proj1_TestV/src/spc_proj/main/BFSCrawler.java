@@ -37,7 +37,6 @@ public class BFSCrawler extends Thread {
 	private static int sleepTime = 500;
 	private volatile static HashSet<String> SNAll = new HashSet<String>();
 	private volatile static Vector<UserNotCraw> SNNotCrawled = new Vector<UserNotCraw>();
-
 	//private static boolean SNAllUsing = false;//make sure SNAll is exclusively used by different threads, avoiding duplication
 	//private static boolean SNNotCrawledUsing = false;//the same
 	private static LogHandler classLogger = new LogHandler("BFSCrawler_Class");
