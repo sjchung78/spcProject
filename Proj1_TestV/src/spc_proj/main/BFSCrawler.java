@@ -142,6 +142,7 @@ public class BFSCrawler extends Thread {
 			for (User u : users.getUsers()) {
 				logger.debug(u.toString());
 				String SN = u.getScreenName();
+				conDAO.insert(name, SN, 0);
 				int crawBit = 1;
 				if (u.getFollowersCount() >= 200)
 					crawBit = 0;
