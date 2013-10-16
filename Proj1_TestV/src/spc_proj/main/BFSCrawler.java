@@ -8,6 +8,8 @@ import spc_proj.dao.UserDAO;
 import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
 import spc_proj.utils.AccessToken;
+import spc_proj.utils.WConfig;
+import spc_proj.utils.Restriction;
 import spc_proj.wrapper.WeiboUser;
 import weibo4j.Friendships;
 import weibo4j.Users;
@@ -46,6 +48,7 @@ public class BFSCrawler extends Thread {
 	private UserDAO uDAO = null;
 	private CommentDAO comDAO = null;
 	private ConnectionDAO conDAO = null;
+	private final static int count = 200;
 
 	public BFSCrawler(String aToken, String loggerName) {
 		super();
@@ -96,7 +99,9 @@ public class BFSCrawler extends Thread {
 			uDAO.insert(WU);
 			String SN = WU.getScreen_name();
 			SNAll.add(SN);
-			SNNotCrawled.add(new UserNotCraw(SN, 0));
+
+			//new UserNotCraw(screenName, crawled, crawlLevel, statusesCount, friendsCount, followersCount)
+			SNNotCrawled.add(new UserNotCraw(SN, 0, 0, WU.getStatuses_count(), WU.getFriends_count(), WU.getFollowers_count()));
 		} catch (WeiboException e) {
 			// TODO Auto-generated catch block
 			classLogger.error("Can't addFirstScreenName");
@@ -106,19 +111,24 @@ public class BFSCrawler extends Thread {
 	}
 
 	public static void loadAllUsers() {
-		String sql = "select screen_name, crawled, crawl_level from weibo_user";
+			//	#"url,profile_image_url,user_domain,gender,followers_count," +
+			//	"friends_count,statuses_count,favourites_count,created_at,following,verified," +
+		String sql = "select  screen_name, crawled, crawl_level, statuses_count,friends_count,followers_count   from weibo_user";
 		DbHandler dh = new DbHandler();
 		ResultSet rs = dh.query(sql);
 		boolean hasSN = false;
 		try {
 			while (rs.next()) {
 				hasSN = true;
-				String SN = rs.getString(1);
+				String screenName = rs.getString(1);
 				int crawled = rs.getInt(2);
 				int crawlLevel = rs.getInt(3);
-				BFSCrawler.SNAll.add(SN);
+				int statusesCount = rs.getInt(4);
+				int friendsCount = rs.getInt(5);
+				int followersCount = rs.getInt(6);
+				BFSCrawler.SNAll.add(screenName);
 				if (crawled == 0) {
-					BFSCrawler.SNNotCrawled.add(new UserNotCraw(SN, crawlLevel));
+					BFSCrawler.SNNotCrawled.add(new UserNotCraw(screenName, crawled, crawlLevel, statusesCount, friendsCount, followersCount));
 				}
 			}
 			if (!hasSN) {// If the set is empty, then add one
@@ -130,32 +140,43 @@ public class BFSCrawler extends Thread {
 			dh.close();
 		}
 	}
+	private void addUsers(UserWapper users, UserNotCraw uPre){
+		WeiboUser WU = null;
+		for (User u : users.getUsers()) {
+			logger.debug(u.toString());
+			String SN = u.getScreenName();
+			conDAO.insert(uPre.getScreenName(), SN, 0);
 
-	private void getFriendsAndFollowers(String name, int level) {
+			if (!SNAll.contains(SN)) {
+				WU = new WeiboUser(u);// WeiboUser
+				WU.setCrawl_level(uPre.getCrawlLevel() + 1);
+				WU.setCrawled(0);
+				uDAO.insert(WU);
+				SNAll.add(SN);
+
+				SNNotCrawled.add(new UserNotCraw(SN, 0, uPre.getCrawlLevel() + 1, WU.getStatuses_count(), WU.getFriends_count(), WU.getFollowers_count()));
+			}
+		}
+	}
+	private void getFriendsAndFollowers(UserNotCraw uPre) {
 		// TODO Auto-generated method stub
-		String screen_name = name;
 		Friendships fm = new Friendships();
 		fm.client.setToken(accessToken);
-		WeiboUser WU = null;
+		String screen_name = uPre.getScreenName();
 		try {
-			UserWapper users = fm.getFriendsByScreenName(screen_name);
-			for (User u : users.getUsers()) {
-				logger.debug(u.toString());
-				String SN = u.getScreenName();
-				conDAO.insert(name, SN, 0);
-				int crawBit = 1;
-				if (u.getFollowersCount() >= 200)
-					crawBit = 0;
-				if (!SNAll.contains(SN)) {
-					WU = new WeiboUser(u);// WeiboUser
-					WU.setCrawl_level(level + 1);
-					WU.setCrawled(crawBit);
-					uDAO.insert(WU);
-					if (crawBit == 0) {
-						SNAll.add(SN);
-						SNNotCrawled.add(new UserNotCraw(SN, level + 1));
-					}
-				}
+			int cursor = 0;
+			if (uPre.getFriendsCount() >= WConfig.minNumToCraw){
+				UserWapper users = fm.getFriendsByScreenName(screen_name);
+				addUsers(users, uPre);
+			}
+			
+			
+			int followersCount = Math.min(Restriction.maxCrawFollowersCount, uPre.getFollowersCount());
+			cursor = 0;
+			while(followersCount - cursor >= WConfig.minNumToCraw){
+				UserWapper users = fm.getFollowersByName(screen_name, count, cursor);
+				addUsers(users, uPre);
+				cursor += count;
 			}
 
 		} catch (Exception e) {
@@ -168,12 +189,9 @@ public class BFSCrawler extends Thread {
 		UserNotCraw SU = null;
 		int level;
 		while (!SNNotCrawled.isEmpty()) {
-			SU = SNNotCrawled.remove(0);
-			String name = SU.getScreenName();
-			SNNotCrawled.remove(SU);
-			level = SU.getCrawlLevel();
-			getFriendsAndFollowers(name, level);
-			uDAO.setCrawled(name);
+			UserNotCraw u = SNNotCrawled.remove(0);
+			getFriendsAndFollowers(u);
+			uDAO.setCrawled(u.getScreenName());
 		}
 	}
 

@@ -15,27 +15,27 @@ public class LogHandler {
 
 	public void debug(String message) {
 		// TODO Auto-generated method stub
-		logger.debug("[DEBUG] [" +LogName+"] "+message);
+		logger.debug("[DEBUG] [" +LogName+"] "+message+ "\n");
 	}
 
 	public void error(String message) {
 		// TODO Auto-generated method stub
-		logger.error("[ERROR] [" +LogName+"] "+message);
+		logger.error("[ERROR] [" +LogName+"] "+message+ "\n");
 	}
 
 	public void fatal(String message) {
 		// TODO Auto-generated method stub
-		logger.fatal("[FATAL] [" +LogName+"] "+message);
+		logger.fatal("[FATAL] [" +LogName+"] "+message+ "\n");
 	}
 
 	public void info(String message) {
 		// TODO Auto-generated method stub
-		logger.info("[INFO ] [" +LogName+"] "+message);
+		logger.info("[INFO ] [" +LogName+"] "+message+ "\n");
 	}
 
 	public void warn(String message) {
 		// TODO Auto-generated method stub
-		logger.warn("[WARN ] [" +LogName+"] "+message);
+		logger.warn("[WARN ] [" +LogName+"] "+message+ "\n");
 	}
 
 	public Logger getLog(){

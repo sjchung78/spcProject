@@ -1,6 +1,12 @@
 package spc_proj.dao;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -8,6 +14,8 @@ import javax.crypto.spec.DHGenParameterSpec;
 
 import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
+import spc_proj.utils.WConfig;
+import spc_proj.utils.WeiboTime;
 import spc_proj.wrapper.WeiboUser;
 
 
@@ -15,6 +23,20 @@ public class UserDAO {
 	private WeiboUser wu = null;
 	private LogHandler logger = null;
 	private DbHandler dh = null;
+	private static int count = 0;
+	private volatile static PrintWriter fileWriter = null;
+
+	static{
+			try {
+				fileWriter = new PrintWriter(new BufferedWriter(new FileWriter("UserDescription.WDB", true)));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
 	
 	public UserDAO(LogHandler log, DbHandler dh) {
 		this.logger = log;
@@ -24,10 +46,17 @@ public class UserDAO {
 	public boolean setCrawled(String screenName){
 		return dh.update("update weibo_user set crawled=1 where screen_name='" + screenName + "'");
 	}
+	public boolean writeDescription(String screen_name, String description){
+		fileWriter.println(screen_name + WConfig.seperator + description);
+		if (++count % WConfig.saveRows == 0)
+			fileWriter.flush();
+		return true;
+	}
 	public boolean insert(WeiboUser wu) {
+		writeDescription(wu.getScreen_name(), wu.getDescription());
 		String sql = "";
 		sql =  "INSERT INTO weibo_user (id,screen_name,name,province,city,location," +
-				"description," + 
+				//"description," + 
 				"url,profile_image_url,user_domain,gender,followers_count," +
 				"friends_count,statuses_count,favourites_count,created_at,following,verified," +
 				"verified_type,allow_all_act_msg,allow_all_comment,follow_me,avatar_large," +
@@ -39,13 +68,14 @@ public class UserDAO {
 		sql += "'"+wu.getProvince()+"',";
 		sql += "'"+wu.getCity()+"',";
 		sql += "'"+wu.getLocation()+"',";
-		sql += "'"+wu.getDescription().replaceAll("'", "‘")+"',";
+		//sql += "'"+wu.getDescription().replaceAll("'", "‘")+"',";
 		sql += "'"+wu.getUrl()+"',";
 		sql += "'"+wu.getProfile_image_url()+"',";
 		sql += "'"+wu.getUser_domain()+"',";
 		sql += "'"+wu.getGender()+"',";
+		//big bug!!!!!
 		sql += "'"+wu.getFollowers_count()+"',";
-		sql += "'"+wu.getFollowers_count()+"',";
+		sql += "'"+wu.getFriends_count()+"',";
 		sql += "'"+wu.getStatuses_count()+"',";
 		sql += "'"+wu.getFavourites_count()+"',";
 		sql += "'"+wu.getCreated_at()+"',";

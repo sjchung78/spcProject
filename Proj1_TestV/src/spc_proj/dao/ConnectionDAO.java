@@ -1,7 +1,10 @@
 package spc_proj.dao;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +12,7 @@ import java.sql.Time;
 
 import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
+import spc_proj.utils.WConfig;
 import spc_proj.utils.WeiboTime;
 import spc_proj.wrapper.WeiboConnection;
 import spc_proj.wrapper.WeiboUser;
@@ -20,12 +24,14 @@ public class ConnectionDAO {
 	private LogHandler logger = null;
 	private DbHandler dh = null;
 	private volatile static PrintWriter fileWriter = null;
-	private  static int saveColumns = Integer.parseInt(WeiboConfig.getValue("saveColumns"));
 	private volatile static int count = 0;
 	static{
 			try {
-				fileWriter = new PrintWriter(new File("weibo_connection.txt"));
+				fileWriter = new PrintWriter(new BufferedWriter(new FileWriter("weibo_connection.WDB", true)));
 			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -57,8 +63,8 @@ public class ConnectionDAO {
 		}
 	}
 	public  boolean insert(String nameA, String nameB, int relation){
-		fileWriter.println(nameA + "\t" + nameB + "\t" + relation + "\t" + WeiboTime.getTime());
-		if (++count % saveColumns == 0)
+		fileWriter.println(nameA + WConfig.seperator + nameB + WConfig.seperator + relation + WConfig.seperator + WeiboTime.getTime());
+		if (++count % WConfig.saveRows == 0)
 			fileWriter.flush();
 		return true;
 	}
