@@ -14,6 +14,7 @@ import javax.crypto.spec.DHGenParameterSpec;
 
 import spc_proj.handler.DbHandler;
 import spc_proj.handler.LogHandler;
+import spc_proj.utils.StringUtil;
 import spc_proj.utils.WConfig;
 import spc_proj.utils.WeiboTime;
 import spc_proj.wrapper.WeiboUser;
@@ -61,7 +62,9 @@ public class UserDAO {
 				"friends_count,statuses_count,favourites_count,created_at,following,verified," +
 				"verified_type,allow_all_act_msg,allow_all_comment,follow_me,avatar_large," +
 				"online_status,bi_followers_count,remark,lang,verified_reason,weihao," +
-				"status_id,insert_date,crawl_level,crawled,uid,blog_url) VALUES (";
+				"status_id," + 
+				//insert_date,
+				"crawl_level,crawled,uid,blog_url) VALUES (";
 		sql += "'"+wu.getId()+"',";
 		sql += "'"+wu.getScreen_name()+"',";
 		sql += "'"+wu.getName()+"',";
@@ -90,10 +93,10 @@ public class UserDAO {
 		sql += "'"+wu.getBi_followers_count()+"',";
 		sql += "'"+wu.getRemark().replaceAll("'", "")+"',";
 		sql += "'"+wu.getLang()+"',";
-		sql += "'"+wu.getVerified_reason()+"',";
+		sql += "'"+StringUtil.escape(wu.getVerified_reason())+"',";
 		sql += "'"+wu.getWeihao()+"',";
 		sql += "'"+wu.getStatus_id()+"',";
-		sql += "'"+wu.getInsert_date()+"',";
+		//sql += "'"+wu.getInsert_date()+"',";
 		sql += "'"+wu.getCrawl_level()+"',";
 		sql += "'"+wu.getCrawled()+"',";
 		sql += "'"+wu.getUid()+"',";

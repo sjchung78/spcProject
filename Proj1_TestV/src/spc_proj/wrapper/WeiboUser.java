@@ -40,7 +40,6 @@ public class WeiboUser {
 	private String verified_reason = null;
 	private String weihao = null;
 	private String status_id = null;
-	private String insert_date = null;
 	private int crawl_level = -1;
 	private int crawled = -1;
 	private String uid = null;
@@ -96,7 +95,6 @@ public class WeiboUser {
 		this.verified_reason = verified_reason;
 		this.weihao = weihao;
 		this.status_id = status_id;
-		this.insert_date = insert_date;
 		this.crawl_level = crawl_level;
 		this.crawled = crawled;
 		this.uid = uid;
@@ -143,7 +141,6 @@ public class WeiboUser {
 		this.status_id = s.getId();
 		
 		this.blog_url = s.getUser().getUrl();
-		this.insert_date = StringUtil.getCurrent(1);
 	}
 	
 	public WeiboUser(User u) {
@@ -181,7 +178,6 @@ public class WeiboUser {
 		this.status_id = u.getStatusId();
 		
 		this.blog_url = u.getUrl();
-		this.insert_date = StringUtil.getCurrent(1);
 	}
 	
 	public String getId() {
@@ -432,13 +428,6 @@ public class WeiboUser {
 		this.status_id = status_id;
 	}
 
-	public String getInsert_date() {
-		return insert_date==null?"":insert_date;
-	}
-
-	public void setInsert_date(String insert_date) {
-		this.insert_date = insert_date;
-	}
 
 	public int getCrawl_level() {
 		return crawl_level;

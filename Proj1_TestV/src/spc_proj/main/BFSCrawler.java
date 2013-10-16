@@ -128,6 +128,7 @@ public class BFSCrawler extends Thread {
 				int followersCount = rs.getInt(6);
 				BFSCrawler.SNAll.add(screenName);
 				if (crawled == 0) {
+					//new UserNotCraw(screenName, crawled, crawlLevel, statusesCount, friendsCount, followersCount)
 					BFSCrawler.SNNotCrawled.add(new UserNotCraw(screenName, crawled, crawlLevel, statusesCount, friendsCount, followersCount));
 				}
 			}

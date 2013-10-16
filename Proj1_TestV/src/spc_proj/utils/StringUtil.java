@@ -5,7 +5,9 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public class StringUtil {
-
+	public static String escape(String str){
+		return str.replaceAll("'", "`");
+	}
 	public static String getCurrent(int type) {
 		/*
 		 * type 1 : yyyymmddhh24miss
