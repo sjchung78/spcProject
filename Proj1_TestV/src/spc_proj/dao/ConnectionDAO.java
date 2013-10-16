@@ -12,6 +12,7 @@ import spc_proj.handler.LogHandler;
 import spc_proj.utils.WeiboTime;
 import spc_proj.wrapper.WeiboConnection;
 import spc_proj.wrapper.WeiboUser;
+import weibo4j.util.WeiboConfig;
 
 
 public class ConnectionDAO {
@@ -19,6 +20,7 @@ public class ConnectionDAO {
 	private LogHandler logger = null;
 	private DbHandler dh = null;
 	private volatile static PrintWriter fileWriter = null;
+	private  static int saveColumns = Integer.parseInt(WeiboConfig.getValue("saveColumns"));
 	private volatile static int count = 0;
 	static{
 			try {
@@ -56,7 +58,7 @@ public class ConnectionDAO {
 	}
 	public  boolean insert(String nameA, String nameB, int relation){
 		fileWriter.println(nameA + "\t" + nameB + "\t" + relation + "\t" + WeiboTime.getTime());
-		if (++count % 20 == 0)
+		if (++count % saveColumns == 0)
 			fileWriter.flush();
 		return true;
 	}
