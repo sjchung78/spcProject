@@ -141,6 +141,7 @@ public class BFSCrawler extends Thread {
 			dh.close();
 		}
 	}
+
 	private void addUsers(UserWapper users, UserNotCraw uPre){
 		WeiboUser WU = null;
 		for (User u : users.getUsers()) {

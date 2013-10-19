@@ -72,6 +72,7 @@ public class UserDAO {
 		sql += "'"+wu.getCity()+"',";
 		sql += "'"+wu.getLocation()+"',";
 		//sql += "'"+wu.getDescription().replaceAll("'", "‘")+"',";
+
 		sql += "'"+wu.getUrl()+"',";
 		sql += "'"+wu.getProfile_image_url()+"',";
 		sql += "'"+wu.getUser_domain()+"',";
