@@ -28,7 +28,6 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
-
 import javax.swing.text.html.HTMLDocument.Iterator;
 
 import org.apache.logging.log4j.core.filter.BurstFilter;

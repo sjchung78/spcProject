@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-
 sub trim{
     my $s = shift;
     $s =~ s/^\s+|\s+$//g;
