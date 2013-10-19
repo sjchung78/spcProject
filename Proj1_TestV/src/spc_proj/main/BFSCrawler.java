@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Vector;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.text.html.HTMLDocument.Iterator;
 
@@ -39,8 +40,6 @@ public class BFSCrawler extends Thread {
 	private static int sleepTime = 500;
 	private volatile static HashSet<String> SNAll = new HashSet<String>();
 	private volatile static Vector<UserNotCraw> SNNotCrawled = new Vector<UserNotCraw>();
-	//private static boolean SNAllUsing = false;//make sure SNAll is exclusively used by different threads, avoiding duplication
-	//private static boolean SNNotCrawledUsing = false;//the same
 	private static LogHandler classLogger = new LogHandler("BFSCrawler_Class");
 	private Connection conn = null;
 	private String accessToken = null;
@@ -49,7 +48,57 @@ public class BFSCrawler extends Thread {
 	private CommentDAO comDAO = null;
 	private ConnectionDAO conDAO = null;
 	private final static int count = 200;
-
+	
+	
+	private static Semaphore sem0 = new Semaphore(1);
+	private static Semaphore sem1 = new Semaphore(1);
+	private static Semaphore sem2 = new Semaphore(1);
+	private static Semaphore sem3 = new Semaphore(1);
+	
+	private static void SNNotCrawledAdd(UserNotCraw u){
+		try{
+			sem0.acquire();
+		SNNotCrawled.add(u);
+			sem0.release();
+		}catch(InterruptedException e){
+			e.printStackTrace();
+			classLogger.debug("addBase got Interrupted!");
+		}
+	}
+	private static boolean SNNotCrawledIsEmpty(){
+		boolean ret = false;
+		try{
+			sem1.acquire();
+			if (SNNotCrawled.isEmpty()) ret = true;
+			sem1.release();
+		}catch(InterruptedException e){
+			e.printStackTrace();
+			classLogger.debug("addBase got Interrupted!");
+		}
+		return ret;
+	}
+	private static boolean SNAllContains(String name){
+		boolean ret = false;
+		try{
+			sem2.acquire();
+			if (SNAll.contains(name)) ret = true;
+			sem2.release();
+		}catch(InterruptedException e){
+			e.printStackTrace();
+			classLogger.debug("addBase got Interrupted!");
+		}
+		return ret;
+	}
+	private static void SNAllAdd(String name){
+		try{
+			sem3.acquire();
+			SNAll.add(name);
+			sem3.release();
+		}catch(InterruptedException e){
+			e.printStackTrace();
+			classLogger.debug("addBase got Interrupted!");
+		}
+	}
 	public BFSCrawler(String aToken, String loggerName) {
 		super();
 		DbHandler dh = new DbHandler();
@@ -59,32 +108,6 @@ public class BFSCrawler extends Thread {
 		comDAO = new CommentDAO(logger, dh);
 		conDAO = new ConnectionDAO(logger, dh);
 	}
-/*	public static void SNAll.add(String SN){
-		while(SNAllUsing){
-			try{
-				Thread.sleep(BFSCrawler.sleepTime);
-			}catch(InterruptedException IE){
-				IE.printStackTrace();
-				classLogger.error("Tread is interrupted!");
-			}
-		}
-		SNAllUsing = true;
-		SNAll.add(SN);
-		SNAllUsing = false;
-	}
-	public static void SNNotCrawled.add(UserNotCraw u){
-		while(SNNotCrawledUsing){
-			try{
-				Thread.sleep(BFSCrawler.sleepTime);
-			}catch(InterruptedException IE){
-				IE.printStackTrace();
-				classLogger.error("Tread is interrupted!");
-			}
-		}
-		SNNotCrawledUsing = true;
-		SNNotCrawled.add(u);
-		SNNotCrawledUsing = false;
-	}*/
 	public static void addFirstScreenName() {
 		String firstSN = WeiboConfig.getValue("firstScreeName");
 		Users UM = new Users();
@@ -98,10 +121,12 @@ public class BFSCrawler extends Thread {
 			UserDAO uDAO = new UserDAO(classLogger, dh);
 			uDAO.insert(WU);
 			String SN = WU.getScreen_name();
-			SNAll.add(SN);
+			SNAllAdd(SN);
 
-			//new UserNotCraw(screenName, crawled, crawlLevel, statusesCount, friendsCount, followersCount)
-			SNNotCrawled.add(new UserNotCraw(SN, 0, 0, WU.getStatuses_count(), WU.getFriends_count(), WU.getFollowers_count()));
+			// new UserNotCraw(screenName, crawled, crawlLevel, statusesCount,
+			// friendsCount, followersCount)
+			SNNotCrawledAdd(new UserNotCraw(SN, 0, 0, WU.getStatuses_count(),
+					WU.getFriends_count(), WU.getFollowers_count()));
 		} catch (WeiboException e) {
 			// TODO Auto-generated catch block
 			classLogger.error("Can't addFirstScreenName");
@@ -111,8 +136,9 @@ public class BFSCrawler extends Thread {
 	}
 
 	public static void loadAllUsers() {
-			//	#"url,profile_image_url,user_domain,gender,followers_count," +
-			//	"friends_count,statuses_count,favourites_count,created_at,following,verified," +
+		// #"url,profile_image_url,user_domain,gender,followers_count," +
+		// "friends_count,statuses_count,favourites_count,created_at,following,verified,"
+		// +
 		String sql = "select  screen_name, crawled, crawl_level, statuses_count,friends_count,followers_count   from weibo_user";
 		DbHandler dh = new DbHandler();
 		ResultSet rs = dh.query(sql);
@@ -126,10 +152,13 @@ public class BFSCrawler extends Thread {
 				int statusesCount = rs.getInt(4);
 				int friendsCount = rs.getInt(5);
 				int followersCount = rs.getInt(6);
-				BFSCrawler.SNAll.add(screenName);
+				BFSCrawler.SNAllAdd(screenName);
 				if (crawled == 0) {
-					//new UserNotCraw(screenName, crawled, crawlLevel, statusesCount, friendsCount, followersCount)
-					BFSCrawler.SNNotCrawled.add(new UserNotCraw(screenName, crawled, crawlLevel, statusesCount, friendsCount, followersCount));
+					// new UserNotCraw(screenName, crawled, crawlLevel,
+					// statusesCount, friendsCount, followersCount)
+					BFSCrawler.SNNotCrawledAdd(new UserNotCraw(screenName,
+							crawled, crawlLevel, statusesCount, friendsCount,
+							followersCount));
 				}
 			}
 			if (!hasSN) {// If the set is empty, then add one
@@ -142,24 +171,27 @@ public class BFSCrawler extends Thread {
 		}
 	}
 
-	private void addUsers(UserWapper users, UserNotCraw uPre){
+	private void addUsers(UserWapper users, UserNotCraw uPre) {
 		WeiboUser WU = null;
 		for (User u : users.getUsers()) {
 			logger.debug(u.toString());
 			String SN = u.getScreenName();
 			conDAO.insert(uPre.getScreenName(), SN, 0);
 
-			if (!SNAll.contains(SN)) {
+			if (!SNAllContains(SN)) {
 				WU = new WeiboUser(u);// WeiboUser
 				WU.setCrawl_level(uPre.getCrawlLevel() + 1);
 				WU.setCrawled(0);
 				uDAO.insert(WU);
-				SNAll.add(SN);
+				SNAllAdd(SN);
 
-				SNNotCrawled.add(new UserNotCraw(SN, 0, uPre.getCrawlLevel() + 1, WU.getStatuses_count(), WU.getFriends_count(), WU.getFollowers_count()));
+				SNNotCrawledAdd(new UserNotCraw(SN, 0,
+						uPre.getCrawlLevel() + 1, WU.getStatuses_count(), WU
+								.getFriends_count(), WU.getFollowers_count()));
 			}
 		}
 	}
+
 	private void getFriendsAndFollowers(UserNotCraw uPre) {
 		// TODO Auto-generated method stub
 		Friendships fm = new Friendships();
@@ -167,16 +199,17 @@ public class BFSCrawler extends Thread {
 		String screen_name = uPre.getScreenName();
 		try {
 			int cursor = 0;
-			if (uPre.getFriendsCount() >= WConfig.minNumToCraw){
+			if (uPre.getFriendsCount() >= WConfig.minNumToCraw) {
 				UserWapper users = fm.getFriendsByScreenName(screen_name);
 				addUsers(users, uPre);
 			}
-			
-			
-			int followersCount = Math.min(Restriction.maxCrawFollowersCount, uPre.getFollowersCount());
+
+			int followersCount = Math.min(Restriction.maxCrawFollowersCount,
+					uPre.getFollowersCount());
 			cursor = 0;
-			while(followersCount - cursor >= WConfig.minNumToCraw){
-				UserWapper users = fm.getFollowersByName(screen_name, count, cursor);
+			while (followersCount - cursor >= WConfig.minNumToCraw) {
+				UserWapper users = fm.getFollowersByName(screen_name, count,
+						cursor);
 				addUsers(users, uPre);
 				cursor += count;
 			}
@@ -190,7 +223,7 @@ public class BFSCrawler extends Thread {
 	public void run() {
 		UserNotCraw SU = null;
 		int level;
-		while (!SNNotCrawled.isEmpty()) {
+		while (!SNNotCrawledIsEmpty()) {
 			UserNotCraw u = SNNotCrawled.remove(0);
 			getFriendsAndFollowers(u);
 			uDAO.setCrawled(u.getScreenName());
@@ -200,8 +233,8 @@ public class BFSCrawler extends Thread {
 	public static void main(String[] args) throws Exception {
 		String[] accessTokens = AccessToken.getAll();
 		BFSCrawler.loadAllUsers();
-		for (int i = 0; i < accessTokens.length; i++){
-			new BFSCrawler(accessTokens[i], "BFSCrawler"+i).start();
+		for (int i = 0; i < accessTokens.length; i++) {
+			new BFSCrawler(accessTokens[i], "BFSCrawler" + i).start();
 		}
 	}
 }
